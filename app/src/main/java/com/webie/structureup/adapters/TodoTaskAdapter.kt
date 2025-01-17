@@ -40,7 +40,6 @@ class TodoTaskAdapter(private val viewModel: TodoViewModel) : RecyclerView.Adapt
     // refresh data
     fun refreshData(data: List<TodoTask>) {
         todoTasks = data
-        // TODO notify only specific items
         notifyDataSetChanged()
     }
 
