@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <application
+        android:name=".StructureUp"
+        android:icon="@mipmap/logo"
+        android:label="@string/appName"
+        android:roundIcon="@mipmap/logo"
+        android:theme="@style/Theme.StructureUp"
+        tools:targetApi="31">
+
+        <!-- Main activity declaration -->
+        <activity android:name=".activities.TodoActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>
