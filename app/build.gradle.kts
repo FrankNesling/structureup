@@ -45,6 +45,7 @@ dependencies {
     // layout
     implementation("androidx.recyclerview:recyclerview:1.3.0")
     implementation("androidx.room:room-common:2.6.1")
+    implementation("androidx.constraintlayout:constraintlayout:2.2.0")
 
     // database
     val roomVersion = "2.6.1"

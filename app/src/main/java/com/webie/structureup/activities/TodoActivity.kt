@@ -1,10 +1,12 @@
 package com.webie.structureup.activities
 
 // OS
+import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.Observer
+import android.util.Log
 
 // UI
 import android.widget.Button
@@ -12,6 +14,9 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import android.view.Menu
+import android.graphics.Color
+import android.view.MenuItem
 
 // References
 import com.webie.structureup.R
@@ -25,8 +30,7 @@ import com.webie.structureup.utils.getWeekDays
 // Calendar
 import java.util.*
 import java.text.SimpleDateFormat
-import android.graphics.Color
-import android.util.Log
+
 
 class TodoActivity : AppCompatActivity() {
     // UI elements
@@ -99,6 +103,27 @@ class TodoActivity : AppCompatActivity() {
 
         todoViewModel.checkAndAddTasksForToday()
     }
+
+    // menu action bar
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        // add items to the action bar
+        menuInflater.inflate(R.menu.todo_menu, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.action_open_table -> {
+                // navigate to dailyActivities
+                val intent = Intent(this, DailyActivity::class.java)
+                startActivity(intent)
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+
 
     // To Do Tasks
     private fun addTodoTask() {

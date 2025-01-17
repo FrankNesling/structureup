@@ -9,12 +9,16 @@
         android:roundIcon="@mipmap/logo"
         android:theme="@style/Theme.StructureUp"
         tools:targetApi="31">
-
+        <activity
+            android:name=".activities.DailyActivity"
+            android:exported="false" />
         <!-- Main activity declaration -->
-        <activity android:name=".activities.TodoActivity"
+        <activity
+            android:name=".activities.TodoActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
