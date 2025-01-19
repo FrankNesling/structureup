@@ -11,7 +11,6 @@ import androidx.lifecycle.MutableLiveData
 // References
 import com.webie.structureup.model.DailyTask
 import com.webie.structureup.StructureUp
-import com.webie.structureup.model.TodoTask
 import com.webie.structureup.utils.generateUniqueId
 
 
@@ -38,6 +37,17 @@ class DailyViewModel : ViewModel() {
         // Database
         StructureUp.coroutineScope.launch {
             dao.insert(newDailyTask)
+        }
+    }
+
+    fun deleteDailyTask(deletingDailyTask: DailyTask) {
+        // UI
+        _dailyTasks.value =
+            _dailyTasks.value?.filter { it.id != deletingDailyTask.id }!!.toMutableList()  // trigger LiveData observer
+
+        // Database
+        StructureUp.coroutineScope.launch {
+            dao.delete(deletingDailyTask)
         }
     }
 

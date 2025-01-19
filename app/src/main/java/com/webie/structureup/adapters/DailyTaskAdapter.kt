@@ -5,20 +5,33 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
+import androidx.appcompat.app.AlertDialog
+
 
 // References
 import com.webie.structureup.R
 import com.webie.structureup.model.DailyTask
-import com.webie.structureup.model.TodoTask
 import com.webie.structureup.viewmodel.DailyViewModel
 
-class DailyTaskAdapter(private val viewModel: DailyViewModel) : RecyclerView.Adapter<DailyTaskAdapter.DailyTaskHolder>() {
+class DailyTaskAdapter(private val viewModel: DailyViewModel, private val onLongClick: (DailyTask) -> Unit) : RecyclerView.Adapter<DailyTaskAdapter.DailyTaskHolder>() {
     private var dailyTasks: List<DailyTask> = listOf()
 
+
     // ViewHolder class to hold references to the views
-    inner class DailyTaskHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val dailyTaskName: TextView = view.findViewById(R.id.dailytask_title)
+    inner class DailyTaskHolder(dailyTaskView: View) : RecyclerView.ViewHolder(dailyTaskView) {
+        private val dailyTask: ConstraintLayout = itemView.findViewById(R.id.dailytask_container)
+        private val dailyTaskName: TextView = itemView.findViewById((R.id.dailytask_title))
+
+        fun bind(task: DailyTask) {
+            dailyTaskName.text = task.title
+
+            dailyTask.setOnLongClickListener {
+                onLongClick(task)
+                true
+            }
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DailyTaskHolder {
@@ -28,7 +41,7 @@ class DailyTaskAdapter(private val viewModel: DailyViewModel) : RecyclerView.Ada
 
     override fun onBindViewHolder(holder: DailyTaskHolder, position: Int) {
         val dailyTask = dailyTasks[position]
-        holder.dailyTaskName.text = dailyTask.title
+        holder.bind(dailyTask)
     }
 
     override fun getItemCount(): Int = dailyTasks.size
