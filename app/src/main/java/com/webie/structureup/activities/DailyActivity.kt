@@ -3,10 +3,9 @@ package com.webie.structureup.activities
 // OS
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import com.webie.structureup.R
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.Observer
-
+import androidx.appcompat.app.AlertDialog
 
 // UI
 import android.widget.LinearLayout
@@ -15,7 +14,6 @@ import android.view.Gravity
 import android.view.ViewGroup
 import android.graphics.Color
 import android.widget.EditText
-import androidx.appcompat.app.AlertDialog
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -25,6 +23,9 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.webie.structureup.adapters.DailyTaskAdapter
 import com.webie.structureup.adapters.TodoTaskAdapter
 import com.webie.structureup.viewmodel.DailyViewModel
+import com.webie.structureup.R
+import com.webie.structureup.model.DailyTask
+
 
 class DailyActivity : AppCompatActivity() {
 
@@ -44,7 +45,12 @@ class DailyActivity : AppCompatActivity() {
         recyclerView = findViewById(R.id.dailyTaskList)
 
         recyclerView.layoutManager = LinearLayoutManager(this)
-        dailyTaskAdapter = DailyTaskAdapter(dailyViewModel)
+       // dailyTaskAdapter = DailyTaskAdapter(dailyViewModel)
+        dailyTaskAdapter = DailyTaskAdapter(dailyViewModel, { dailyTask: DailyTask->
+            // Define what happens on long click
+            showDeleteConfirmationDialog(dailyTask)
+        })
+
         recyclerView.adapter = dailyTaskAdapter
 
 
@@ -80,4 +86,16 @@ class DailyActivity : AppCompatActivity() {
 
         dialog.show()
     }
+
+    private fun showDeleteConfirmationDialog(dailyTask: DailyTask) {
+        AlertDialog.Builder(this)
+            .setTitle("Delete Item")
+            .setMessage("Do you want to delete this daily Task?")
+            .setPositiveButton("OK") { _, _ ->
+                dailyViewModel.deleteDailyTask(dailyTask)
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
 }
