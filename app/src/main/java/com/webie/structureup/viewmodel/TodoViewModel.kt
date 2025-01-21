@@ -1,10 +1,12 @@
 package com.webie.structureup.viewmodel
 
 // OS
+import android.util.Log
 import androidx.lifecycle.ViewModel
 
 // Database (coroutines)
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.async
 
 // Data Types
 import androidx.lifecycle.LiveData
@@ -12,6 +14,7 @@ import androidx.lifecycle.MutableLiveData
 
 // References
 import com.webie.structureup.StructureUp
+import com.webie.structureup.model.DailyTask
 import com.webie.structureup.model.TodoTask
 import com.webie.structureup.utils.generateUniqueId
 import com.webie.structureup.utils.getStartOfDayInMilliSec
@@ -27,6 +30,7 @@ class TodoViewModel : ViewModel() {
 
     // Database
     private val dao = StructureUp.getDatabase().todoTaskDao()
+    private val dailyDao = StructureUp.getDatabase().dailyTaskDao()
 
     // Calendar
     private val _selectedDate = MutableLiveData(Calendar.getInstance())  // today
@@ -147,6 +151,7 @@ class TodoViewModel : ViewModel() {
         val insertJob = StructureUp.coroutineScope.launch {
             // Check if tasks for today already exist
             val existingTasks = dao.getTasksForDate(todayTimestamp)
+            Log.d("FOUNDYOU", existingTasks.size.toString())
             if (existingTasks.isEmpty()) {
                 // No tasks for today, add new task
                 val tasksToAdd = getTasksForToday(todayTimestamp)
@@ -156,15 +161,19 @@ class TodoViewModel : ViewModel() {
         }
     }
 
-    private fun getTasksForToday(date: Long): List<TodoTask> {
-        // Create a list of specific tasks to be added for today
-        return listOf(
-            TodoTask(id = generateUniqueId(), date = date, title = "Sport"),
-            TodoTask(id = generateUniqueId(), date = date, title = "Sprache"),
-            TodoTask(id = generateUniqueId(), date = date, title = "Wissen"),
-            TodoTask(id = generateUniqueId(), date = date, title = "Natur"),
-            TodoTask(id = generateUniqueId(), date = date, title = "Gaming"),
-            TodoTask(id = generateUniqueId(), date = date, title = "BONUS: Coding")
-        )
+    private suspend fun getTasksForToday(date: Long): List<TodoTask> {
+        var dailyTasksFromDB = emptyList<DailyTask>()
+        var todoTasks = mutableListOf<TodoTask>()
+
+        val getJob = StructureUp.coroutineScope.async {
+            dailyTasksFromDB = dailyDao.getAllDailyTasks()
+        }.await()
+
+        for (dailyTask in dailyTasksFromDB) {
+            todoTasks.add(TodoTask(id = generateUniqueId(), date = date, title = dailyTask.title))
+        }
+
+        return todoTasks.toList()
+
     }
 }
