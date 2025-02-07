@@ -17,10 +17,13 @@ import androidx.recyclerview.widget.RecyclerView
 import android.view.Menu
 import android.graphics.Color
 import android.view.MenuItem
+import android.widget.EditText
+import androidx.appcompat.app.AlertDialog
 
 // References
 import com.webie.structureup.R
 import com.webie.structureup.adapters.TodoTaskAdapter
+import com.webie.structureup.model.DailyTask
 import com.webie.structureup.model.TodoTask
 import com.webie.structureup.viewmodel.TodoViewModel
 import com.webie.structureup.utils.generateUniqueId
@@ -62,17 +65,13 @@ class TodoActivity : AppCompatActivity() {
             todoViewModel.goToPreviousDay()
         }
 
-        // Add button
-        //addTodoTaskButton = findViewById(R.id.addTodoTaskButton)
-        //addTodoTaskButton.setOnClickListener {
-        //    addTodoTask()
-        //}
-
         // List
         todoTaskList = findViewById(R.id.todoTaskList)
         todoTaskList.layoutManager = LinearLayoutManager(this)
 
-        todoTaskAdapter = TodoTaskAdapter(todoViewModel)
+        todoTaskAdapter = TodoTaskAdapter(todoViewModel, { todoTask: TodoTask ->
+            showDeleteConfirmationDialog(todoTask)
+        })
         todoTaskList.adapter = todoTaskAdapter
 
         // observer for refreshing data
@@ -102,6 +101,13 @@ class TodoActivity : AppCompatActivity() {
         })
 
         todoViewModel.checkAndAddTasksForToday()
+
+
+        // Add button
+        addTodoTaskButton = findViewById(R.id.addTodoTaskButton)
+        addTodoTaskButton.setOnClickListener {
+            addTodoTask()
+        }
     }
 
     // menu action bar
@@ -127,11 +133,39 @@ class TodoActivity : AppCompatActivity() {
 
     // To Do Tasks
     private fun addTodoTask() {
-        val todoTaskName = "New Task"   // default name for new task
+        val builder: AlertDialog.Builder = AlertDialog.Builder(this)
+        builder.setTitle("Name your task")
 
-        // adding to UI + DB
-        val newTodoTask = TodoTask(id = generateUniqueId(), title = todoTaskName, date = getStartOfDayInMilliSec(Calendar.getInstance()))
-        todoViewModel.addTodoTask(newTodoTask)
+        // Set up the input
+        val input = EditText(this)
+        builder.setView(input)
+
+        // Set up the buttons
+        builder.setPositiveButton("OK") { dialog, which ->
+            val todoTaskName = input.text.toString()
+            if (todoViewModel.selectedDate.value != null) {
+                val newTodoTask = TodoTask(id = generateUniqueId(), title = todoTaskName, date = getStartOfDayInMilliSec(
+                    todoViewModel.selectedDate.value!!
+                ))
+                todoViewModel.addTodoTask(newTodoTask)
+            }
+        }
+        builder.setNegativeButton("Cancel") { dialog, which ->
+            dialog.cancel()
+        }
+
+        builder.show()
+    }
+
+    private fun showDeleteConfirmationDialog(todoTask: TodoTask) {
+        AlertDialog.Builder(this)
+            .setTitle("Delete Item")
+            .setMessage("Do you want to delete this ToDo Task?")
+            .setPositiveButton("OK") { _, _ ->
+                todoViewModel.deleteTodoTask(todoTask)
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
     }
 
     // Calendar

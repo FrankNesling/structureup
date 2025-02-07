@@ -45,9 +45,7 @@ class DailyActivity : AppCompatActivity() {
         recyclerView = findViewById(R.id.dailyTaskList)
 
         recyclerView.layoutManager = LinearLayoutManager(this)
-       // dailyTaskAdapter = DailyTaskAdapter(dailyViewModel)
         dailyTaskAdapter = DailyTaskAdapter(dailyViewModel, { dailyTask: DailyTask->
-            // Define what happens on long click
             showDeleteConfirmationDialog(dailyTask)
         })
 

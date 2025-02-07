@@ -47,4 +47,10 @@
         android:layout_weight="1"
         android:layout_marginTop="16dp"/>
 
+    <Button
+        android:id="@+id/addTodoTaskButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Add Task" />
+
 </LinearLayout>
