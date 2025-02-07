@@ -10,6 +10,7 @@ import android.view.View.GONE
 import android.view.ViewGroup
 import android.widget.CheckBox
 import android.widget.TextView
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
 
 // References
@@ -18,7 +19,7 @@ import com.webie.structureup.model.TodoTask
 import com.webie.structureup.viewmodel.TodoViewModel
 
 
-class TodoTaskAdapter(private val viewModel: TodoViewModel) : RecyclerView.Adapter<TodoTaskAdapter.TodoTaskHolder>() {
+class TodoTaskAdapter(private val viewModel: TodoViewModel, private val onLongClickForDeletion: (TodoTask) -> Unit) : RecyclerView.Adapter<TodoTaskAdapter.TodoTaskHolder>() {
     private var todoTasks: List<TodoTask> = listOf()
 
 
@@ -49,6 +50,7 @@ class TodoTaskAdapter(private val viewModel: TodoViewModel) : RecyclerView.Adapt
         private val titleTodoTaskView: TextView = itemView.findViewById(R.id.todotask_title)
         private val descriptionTodoTaskView: TextView = itemView.findViewById(R.id.todotask_description)
         private val checkBoxTodoTask: CheckBox = itemView.findViewById(R.id.todotask_checkbox)
+        private val todoTaskContainer: ConstraintLayout = itemView.findViewById(R.id.todotask_container)
 
         fun bind(task: TodoTask) {
             // TITLE
@@ -64,6 +66,11 @@ class TodoTaskAdapter(private val viewModel: TodoViewModel) : RecyclerView.Adapt
             // toggle task completion state
             checkBoxTodoTask.setOnClickListener  {
                 viewModel.toggleTodoTask(task)
+                true
+            }
+
+            todoTaskContainer.setOnLongClickListener {
+                onLongClickForDeletion(task)
                 true
             }
 
