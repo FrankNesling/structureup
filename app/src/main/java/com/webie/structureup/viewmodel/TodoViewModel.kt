@@ -150,11 +150,10 @@ class TodoViewModel : ViewModel() {
 
         val insertJob = StructureUp.coroutineScope.launch {
             // Check if tasks for today already exist
-            val existingTasks = dao.getTasksForDate(todayTimestamp)
-            Log.d("FOUNDYOU", existingTasks.size.toString())
-            if (existingTasks.isEmpty()) {
+            val tasksToAdd = getTasksForToday(todayTimestamp)
+
+            if (tasksToAdd.isNotEmpty()) {
                 // No tasks for today, add new task
-                val tasksToAdd = getTasksForToday(todayTimestamp)
                 dao.insertTasks(tasksToAdd)
             }
             loadTodoTasksForDate(todayTimestamp)
@@ -162,18 +161,28 @@ class TodoViewModel : ViewModel() {
     }
 
     private suspend fun getTasksForToday(date: Long): List<TodoTask> {
-        var dailyTasksFromDB = emptyList<DailyTask>()
+        var dailyTasksFromDB = emptyList<String>()
+        var existingTasks = emptySet<String>()
+
         var todoTasks = mutableListOf<TodoTask>()
 
-        val getJob = StructureUp.coroutineScope.async {
-            dailyTasksFromDB = dailyDao.getAllDailyTasks()
+        // retrieve already existing tasks for this day
+        val existingJob = StructureUp.coroutineScope.async {
+            existingTasks = dao.getTasksForDate(date).map { it.title }.toSet()
         }.await()
 
-        for (dailyTask in dailyTasksFromDB) {
-            todoTasks.add(TodoTask(id = generateUniqueId(), date = date, title = dailyTask.title))
+        // retrieve current daily Tasks
+        val dailyJob = StructureUp.coroutineScope.async {
+            dailyTasksFromDB = dailyDao.getAllDailyTasks().map { it.title}
+        }.await()
+
+        // filter and add only daily tasks that have not been added yet for this day
+        val missingDailyTasks = dailyTasksFromDB.filter { it !in existingTasks}
+        missingDailyTasks.forEach { title ->
+            todoTasks.add(TodoTask(id = generateUniqueId(), date = date, title = title))
         }
 
-        return todoTasks.toList()
 
+        return todoTasks.toList()
     }
 }
